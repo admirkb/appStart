@@ -1,0 +1,52 @@
+<!--<bugs-form [hidden]="!user"></bugs-form>-->
+<!--<bugs-form></bugs-form>-->
+<!--<div [hidden]="user">You need to login to create new parties!</div>-->
+
+<br/>
+<h1 style="color:white;">BugTracker</h1>
+<table class="copy1">
+    <tr>
+        <td>
+            <div>
+                <table style="width:auto;white-space:nowrap">
+
+
+                    <tr>
+                        <td>
+                            <div style="color:white;" *ngFor="let bug of bugs | async; let i = index">
+                                <button>Click here {{i}}</button>
+
+                            </div>
+                            <!--<bugs-item *ngFor="let bug of bugs | async; let i = index" [bugModel]="bug" [theIndex]="i"></bugs-item>-->
+
+                        </td>
+                    </tr>
+                </table>
+
+            </div>
+        </td>
+    </tr>
+
+    <tr>
+        <td>
+            <div>
+                <table style="width:auto;white-space:nowrap">
+
+
+                    <tr>
+                        <td>
+                            <div style="color:red;" *ngFor="let bug of bugsA ; let i = index">
+                                <button>Click here {{bug.problem}}</button>
+
+                            </div>
+
+                        </td>
+                    </tr>
+                </table>
+
+            </div>
+        </td>
+    </tr>
+</table>
+
+ <!--<div style="color:white;" *ngFor="let bug of bugs | keys; let i = index">-->

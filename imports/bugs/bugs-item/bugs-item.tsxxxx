@@ -1,0 +1,259 @@
+import 'reflect-metadata';
+
+import { Meteor } from 'meteor/meteor';
+
+// Angular
+
+import {Component, EventEmitter, OnInit, Input, ElementRef, ViewChild, AfterViewInit, SimpleChange, OnChanges} from '@angular/core';
+// import {MeteorComponent} from 'angular2-meteor';
+
+// Admir
+// import {BugsForm} from '../../../imports/bugs/bugs-form/bugs-form';
+
+import template from './bugs-item.html';
+
+@Component({
+  selector: 'bugs-item',
+  template,
+  // properties: ['problem']
+})
+export class BugsItem  implements OnInit, AfterViewInit, OnChanges {
+  //  @ViewChild(BugsForm) staffsForm: BugsForm;
+  @Input() bugModel;
+  @Input() theIndex;
+  private _element: any;
+
+
+  constructor(elementRef: ElementRef) {
+
+
+    this._element = elementRef.nativeElement;
+  }
+
+  ngAfterViewInit() {
+
+    var cells = this._element.getElementsByTagName("td");
+
+
+    for (var i = 0; i < cells.length; i++) {
+      cells[i].style.backgroundColor = "gold";
+
+
+      var inputs = cells[i].getElementsByTagName("input");
+      if (inputs.length == 1) {
+        console.dir(inputs[0])
+        inputs[0].disabled = false;
+        inputs[0].style.backgroundColor = "red";
+      }
+
+      var buttons = cells[i].getElementsByTagName("button");
+
+      if (buttons.length == 1) {
+        console.dir(buttons[0])
+        buttons[0].disabled = false;
+        buttons[0].style.backgroundColor = "blue";
+      }
+
+      // console.dir(inputs)
+
+      // console.dir(cells[i].children)
+    }
+
+  }
+
+  ngOnChanges(changes: { [propertyName: string]: SimpleChange }) {
+    for (let propName in changes) {
+
+      console.log("propName" + propName)
+      if (propName == 'bugModel') {
+        // this.changeMuteState(this.bugModel);
+      }
+    }
+  }
+
+  changeMuteState(model: any) {
+
+    console.dir(this.bugModel)
+    this.bugModel.isDisabled = false;
+    console.dir(this.bugModel)
+  }
+
+  ngOnInit() {
+
+    // console.log(this._element.outerHTML)
+    // var cells = this._element.getElementsByTagName("td");
+
+    // for (var i = 0; i < cells.length; i++) {
+    //   cells[i].style.backgroundColor = "yellow";
+
+
+    //   // var inputs = cells[i].getElementsByTagName("input");
+    //   // if (inputs.length == 1) {
+    //   //   console.dir(inputs[0])
+    //   //   inputs[0].disabled = false;
+    //   //   inputs[0].style.backgroundColor = "yellow";
+    //   // }
+
+    //   // var buttons = cells[i].getElementsByTagName("button")[0];
+
+    //   // if (buttons != null) {
+    //   //   console.dir(buttons)
+    //   //   buttons.disabled = false;
+    //   //   buttons.style.backgroundColor = "yellow";
+    //   // }
+
+    //   var buttons = cells[i].getElementsByTagName("button");
+
+    //   if (buttons.length == 1) {
+    //     console.dir(buttons[0])
+    //     buttons[0].disabled = false;
+    //     buttons[0].style.backgroundColor = "yellow";
+    //   }
+
+    // }
+
+
+
+  }
+
+  public setBug(bug) {
+    // bug.editColor = "purple"
+    bug.editColor = "blue";
+    // console.log("In setBug")
+    console.dir(bug)
+    this._element.style.background = "orange";
+
+    console.dir(this._element)
+
+    // this.bugModel.problem = bug.problem;
+    // alert(this.bugModel.problem + " / " + bug.problem)
+
+    // this.myThis.bugModel.editColor =    bug.editColor  ;
+    // this.bugModel.editColor = bug.editColor;
+  }
+
+  /* */
+
+  cancelBug(bug) {
+
+    bug.isEditable = false;
+    bug.problem = bug.origProblem;
+    bug.response = bug.origResponse;
+
+    var self = this;
+    Meteor.call('bugs.update', { _id: bug._id }, { $set: { isDisabled: false, isEditable: bug.isEditable, editColor: "transparent" } }, function (error, result) {
+      // console.log("here" + bug.selfConnectionId)
+      bug.isDisabled = false;
+      bug.editColor = "transparent";
+
+      var cells = self._element.getElementsByTagName("td");
+      for (var i = 0; i < cells.length; i++) {
+        cells[i].style.backgroundColor = "black";
+
+
+        var inputs = cells[i].getElementsByTagName("input");
+        for (var j = 0; j < inputs.length; j++) {
+          if (inputs[j] != null) {
+            inputs[j].disabled = false;
+          }
+        }
+
+        var buttons = cells[i].getElementsByTagName("button");
+        for (var j = 0; j < buttons.length; j++) {
+          buttons[j].disabled = false;
+        }
+        console.dir(inputs)
+        // console.dir(cells[i].children)
+      }
+
+
+      console.log("bugs.update editBug callback")
+    });
+
+  }
+
+  updateBug(bug) {
+    console.dir(bug)
+
+    Meteor.call('bugs.update', { _id: bug._id }, { $set: { isDisabled: false, isEditable: false, problem: bug.problem, response: bug.response, dateResolved: new Date(), editColor: "transparent" } }, function (error, result) {
+      // console.log("here")
+      // console.dir(error)
+      // console.dir(result)
+
+      console.log("bugs.update updateBug callback")
+    });
+
+  }
+
+  deleteBug(bug) {
+
+    Meteor.call('bugs.remove', { _id: bug._id });
+  }
+
+  editBug(bug) {
+
+    bug.isEditable = true;
+    bug.origProblem = bug.problem;
+    bug.origResponse = bug.response;
+
+
+    bug.isDisabled = true;
+    bug.editColor = "green";
+
+    var self = this;
+
+    var cells = self._element.getElementsByTagName("td");
+
+
+
+
+
+    Meteor.call('bugs.update', { _id: bug._id }, { $set: { isDisabled: true, isEditable: bug.isEditable, editColor: "red" } }, function (error, result) {
+      // console.log("here" + bug.selfConnectionId)
+      // bug.isDisabled = false;
+      // bug.editColor = "transparent";
+      console.log("here")
+      console.dir(bug)
+
+      // for (var i = 0; i < cells.length; i++) {
+      //   cells[i].style.backgroundColor = "green";
+
+
+      //   var inputs = cells[i].getElementsByTagName("input");
+      //   if (inputs.length == 1) {
+      //     console.dir(inputs[0])
+      //     inputs[0].disabled = false;
+      //     inputs[0].style.backgroundColor = "orange";
+      //   }
+
+      //   var buttons = cells[i].getElementsByTagName("button");
+      //   if (buttons.length == 1) {
+      //     console.log(buttons.length + " found  button")
+      //     var theButton = buttons[0];
+      //     console.dir(theButton)
+      //     theButton.disabled = false;
+      //     theButton.style.backgroundColor = "orange";
+      //   }
+
+      //   // console.dir(inputs)
+
+      //   // console.dir(cells[i].children)
+      // }
+
+    bug.isDisabled = false;
+    bug.editColor = "orange";
+
+      console.log("bugs.update editBug callback")
+    });
+
+
+
+  }
+
+  doModal(ev) {
+
+    console.dir(ev);
+
+
+  }
+}
